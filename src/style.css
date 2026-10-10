@@ -1,0 +1,4473 @@
+/*
+ * The same dark the editor in the mod is drawn in, and the same restraint.
+ *
+ * Not decoration: somebody who marks a face on the site and then marks one in game
+ * should feel they are in the same tool, and the surest way to say that is to use
+ * the same few colours rather than to write it down anywhere.
+ *
+ * There are seven of them, and there is no eighth. Every border is one hairline,
+ * every corner is the same radius, and nothing has a shadow. What separates two
+ * things here is a change of background, never an effect.
+ */
+:root {
+  --canvas: #101318;
+  --panel: #161a20;
+  --tile: #1b2028;
+  --tile-hot: #232a34;
+  --tile-on: #27313e;
+  --edge: #2c333d;
+  --text: #eceff1;
+  --dim: #8a99a6;
+  --accent: #4fc3f7;
+  --good: #81c784;
+  --warn: #e57373;
+  --radius: 6px;
+
+  color-scheme: dark;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+* {
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+body {
+  margin: 0;
+  background: var(--canvas);
+  color: var(--text);
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  border: 1px solid transparent;
+  background: none;
+  border-radius: var(--radius);
+}
+
+button:disabled {
+  cursor: default;
+  opacity: 0.35;
+}
+
+input {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  outline: none;
+  width: 100%;
+}
+
+input::-webkit-search-cancel-button {
+  filter: grayscale(1) opacity(0.5);
+}
+
+/* ------------------------------------------------------------------ the top */
+
+/* One row high, everywhere: the search moved into the panel of filters. */
+.top {
+  border-bottom: 1px solid var(--edge);
+  background: var(--panel);
+  padding: 0 1rem;
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  height: 3.25rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 650;
+  font-size: 1.05rem;
+  color: var(--text);
+  text-decoration: none;
+  letter-spacing: -0.01em;
+}
+
+/* A head with two eyes, in three rectangles. The whole site is about those two. */
+.brand-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  width: 26px;
+  height: 26px;
+  background: var(--text);
+  border-radius: 4px;
+}
+
+.brand-mark i {
+  width: 5px;
+  height: 8px;
+  background: var(--canvas);
+  border-radius: 1px;
+}
+
+/* The same square, with the model itself in it instead of the drawing of one. The
+   figure stands on nothing: the square was a head, and this one has its own. */
+.brand-mark.live {
+  background: none;
+  border-radius: 0;
+  animation: mark-in 0.24s ease-out;
+}
+
+.brand-mark.live canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+@keyframes mark-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Asked for less movement, the mark neither plays its cycle nor fades in. */
+@media (prefers-reduced-motion: reduce) {
+  .brand-mark.live {
+    animation: none;
+  }
+}
+
+.top-nav {
+  display: flex;
+  gap: 1.1rem;
+  margin-right: auto;
+}
+
+.top-nav a {
+  color: var(--dim);
+  text-decoration: none;
+  padding: 0.2rem 0;
+  border-bottom: 2px solid transparent;
+}
+
+.top-nav a:hover {
+  color: var(--text);
+}
+
+.top-nav a.on {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+
+/*
+ * A section that is not open yet. In its place, so it is seen to be coming, and
+ * quieter than the rest, so it is not taken for one that works.
+ */
+.top-nav a.closed {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.top-nav a.closed:hover {
+  color: var(--dim);
+}
+
+.top-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/*
+ * How many to a row, narrow enough to read as a setting and not as navigation.
+ * First in the right-hand group, so the three buttons beside it stay together.
+ */
+.top-rows {
+  width: 7.5rem;
+}
+
+.top-rows .drop-face {
+  padding: 0.38rem 0.55rem;
+  background: var(--tile);
+}
+
+/*
+ * The language, sized to the name in it.
+ *
+ * No fixed width, because the names are the languages' own: «Українська» is twice
+ * «中文», and a box wide enough for the longest would be a hole beside the shortest.
+ * Capped all the same, so one long name cannot push the buttons off a narrow header.
+ *
+ * Unlike the row count this is never hidden. How many cards to a row is a choice
+ * about a wide screen; which language the site is in is a choice about being able to
+ * read it, and a phone is where somebody is most likely to have arrived on the wrong
+ * one from a link.
+ */
+.top-lang {
+  max-width: 8rem;
+}
+
+.top-lang .drop-face {
+  padding: 0.38rem 0.55rem;
+  background: var(--tile);
+}
+
+.ghost {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.8rem;
+  border-color: var(--edge);
+  background: var(--tile);
+}
+
+.ghost:hover,
+.ghost.on {
+  background: var(--tile-hot);
+}
+
+/* Looks like a button and is not one, because it cannot do anything yet. */
+.ghost.off {
+  color: var(--dim);
+  cursor: default;
+}
+
+.ghost.off:hover {
+  background: var(--tile);
+}
+
+/* ------------------------------------------------------------- who you are */
+
+.who {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  max-width: 12rem;
+  padding: 0.25rem 0.6rem 0.25rem 0.25rem;
+  border-color: var(--edge);
+  background: var(--tile);
+}
+
+.who:hover,
+.who.on {
+  background: var(--tile-hot);
+}
+
+.who img {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* A name can be anything at all on Discord, and the header cannot grow for it. */
+.who-name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.who-menu {
+  padding: 0.25rem;
+  background: var(--panel);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+}
+
+.who-out {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  padding: 0.35rem 0.6rem;
+  color: var(--dim);
+  border-color: transparent;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+a.who-out {
+  text-decoration: none;
+  border-radius: var(--radius);
+}
+
+.who-out:hover {
+  color: var(--text);
+  background: var(--tile-hot);
+}
+
+/* A way in that is not set up yet: in the menu, so it is known to be coming. */
+.who-out.off {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.who-out.off:hover {
+  color: var(--dim);
+  background: none;
+}
+
+/* A service already tied to the account: a line of the menu, not a thing to press. */
+.who-line {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.6rem;
+  color: var(--dim);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.who-tick {
+  margin-left: auto;
+  padding-left: 0.6rem;
+  box-sizing: content-box;
+  color: var(--good);
+}
+
+/*
+ * How models for adults are shown, in the account menu.
+ *
+ * In the menu and not in the filters, because it is a setting of the account that
+ * the far side honours: with them hidden they are not sent at all. Ruled off above
+ * and below so it does not read as another way in or out, and given a width of its
+ * own, since the rest of the menu is only as wide as a name.
+ */
+.who-adult {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 15rem;
+  margin: 0.3rem 0;
+  padding: 0.5rem 0.6rem;
+  border-top: 1px solid var(--edge);
+  border-bottom: 1px solid var(--edge);
+}
+
+.who-head {
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.who-note {
+  margin: 0;
+  max-width: 15rem;
+  font-size: 0.78rem;
+  color: var(--dim);
+  white-space: normal;
+}
+
+.who-note.bad {
+  color: var(--warn);
+}
+
+/* ------------------------------------------------------------ the bell */
+
+/*
+ * What the site has to tell you, beside who you are.
+ *
+ * The number is on the button rather than in the list, because the point of it is to
+ * be seen without the list being opened. It is drawn over the corner of the bell and
+ * not beside it: a chip that grows when a notice arrives moves the two buttons next
+ * to it, and the header is not a place where things move.
+ */
+.chip.bell {
+  position: relative;
+  overflow: visible;
+}
+
+.bell-count {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 3px;
+  box-sizing: border-box;
+  font-size: 0.62rem;
+  font-weight: 650;
+  line-height: 15px;
+  text-align: center;
+  color: var(--canvas);
+  background: var(--accent);
+  border-radius: 8px;
+}
+
+/*
+ * Wide enough for a sentence, and no taller than the window.
+ *
+ * A notice is a sentence and not a word — "somebody published your model as theirs"
+ * does not fit the width of a name, which is what the account menu beside it is cut
+ * to. Twenty of them scroll inside the menu rather than down the page behind it.
+ */
+.bell-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: min(26rem, calc(100vw - 2rem));
+  max-height: min(27rem, calc(100vh - 6rem));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.6rem;
+  background: var(--panel);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+}
+
+.bell-menu::-webkit-scrollbar {
+  width: 8px;
+}
+
+.bell-menu::-webkit-scrollbar-thumb {
+  background: var(--edge);
+  border-radius: 4px;
+}
+
+.icon-only {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  color: var(--dim);
+  border-color: transparent;
+}
+
+.icon-only:hover:not(:disabled) {
+  color: var(--text);
+  background: var(--tile-hot);
+}
+
+.hunt {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.7rem;
+  background: var(--tile);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  color: var(--dim);
+}
+
+.hunt:focus-within {
+  border-color: var(--accent);
+}
+
+.hunt input {
+  font-size: 0.95rem;
+}
+
+.views {
+  display: flex;
+  gap: 0.25rem;
+  margin-right: 0.25rem;
+}
+
+.views .chip {
+  width: 30px;
+  height: 30px;
+  flex: none;
+}
+
+/*
+ * How many to a row is a choice about a wide screen, and under 60rem the grid goes
+ * back to what fits — see the grid's own rule. A control that cannot change anything
+ * is taken out rather than left to take room from the three buttons that work.
+ */
+@media (max-width: 60rem) {
+  .top-rows {
+    display: none;
+  }
+}
+
+/*
+ * A header that does not fit wraps, instead of printing the navigation over the mark.
+ *
+ * The fixed height was what made the overlap: it held while the row inside it grew,
+ * and on a phone a row of four sections and four buttons is wider than any phone.
+ * The navigation drops to a line of its own and scrolls sideways if it has to.
+ */
+@media (max-width: 46rem) {
+  .top-bar {
+    flex-wrap: wrap;
+    height: auto;
+    gap: 0.4rem 1rem;
+    padding: 0.55rem 0;
+  }
+
+  .top-nav {
+    order: 3;
+    width: 100%;
+    gap: 1rem;
+    margin-right: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .top-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .top-nav a {
+    white-space: nowrap;
+  }
+
+  .top-right {
+    margin-left: auto;
+  }
+}
+
+/* --------------------------------------------------------------- the middle */
+
+/*
+ * Every page is a column at least as tall as the window.
+ *
+ * So that whatever is in the middle can take the room left over and the foot of the
+ * page sits at the foot of the page. Short pages — a closed section, a page of rules —
+ * otherwise end halfway up the window with a footer floating in the middle, which
+ * reads as a page that failed to load rather than as a page with little on it.
+ */
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+.body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 17.5rem;
+  gap: 1rem;
+  align-items: start;
+  padding: 1rem;
+  flex: 1;
+}
+
+/*
+ * The panel is shown because the page says it is open, not because the screen is
+ * wide. Before this the cross in its corner set a flag nothing on a wide screen
+ * ever read, so it did nothing at all — and the grid keeps the width the panel
+ * gives back.
+ */
+.body:not(.panel-open) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.body:not(.panel-open) .filters {
+  display: none;
+}
+
+/*
+ * The cards and, under them, the foot of the page.
+ *
+ * A column rather than a plain block because the foot belongs at the bottom of the
+ * window on a page with six cards on it, not three lines under the last one.
+ */
+.grid-side {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.grid-side > .site-foot {
+  margin-top: auto;
+}
+
+/*
+ * As many to a row as the person chose, not as many as happen to fit. As many as
+ * fit is nine or ten across a wide screen, and a row of ten reads as texture
+ * rather than as ten things.
+ */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(var(--per-row, 5), minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.note {
+  color: var(--dim);
+  padding: 2rem 0.25rem;
+}
+
+.note.bad {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.5rem 0.6rem 0.75rem;
+  color: var(--warn);
+  background: var(--tile);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+}
+
+/* ---------------------------------------------------------------- the cards */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  background: var(--tile);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+/* The whole card opens it, so the whole card says so. A small link on the name
+   would be a target people miss and then press again harder. */
+.card {
+  cursor: pointer;
+}
+
+.card:hover {
+  border-color: #3a4450;
+}
+
+.card:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.card-top {
+  padding: 0.4rem 0.6rem 0.35rem;
+  border-bottom: 1px solid var(--edge);
+  background: var(--panel);
+}
+
+.card-author {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  font-size: 0.72rem;
+  color: var(--dim);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.card-name {
+  display: block;
+  color: var(--accent);
+  font-size: 0.92rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-figure {
+  position: relative;
+  display: grid;
+  place-items: center;
+  /* A turned figure is about half as wide as it is tall, so the card was mostly
+     air. Narrower cards and less padding put the character where the eye goes. */
+  padding: 0.4rem 0;
+  /* The chequer says "transparent" without anybody writing it down. */
+  background-image:
+    linear-gradient(45deg, #171c22 25%, transparent 25%),
+    linear-gradient(-45deg, #171c22 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #171c22 75%),
+    linear-gradient(-45deg, transparent 75%, #171c22 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+  background-color: #1e242c;
+}
+
+.figure {
+  display: block;
+  image-rendering: pixelated;
+}
+
+.card-rank {
+  position: absolute;
+  top: 0.35rem;
+  left: 0.5rem;
+  font-size: 0.78rem;
+  color: var(--dim);
+}
+
+.card-marks {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.4rem;
+  display: flex;
+  gap: 0.25rem;
+}
+
+.mark {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  color: var(--dim);
+  background: #00000055;
+}
+
+/*
+ * Taking a skin without opening it.
+ *
+ * The commonest thing anybody does here, and it was costing an open and a close.
+ * Quiet until the card is under the pointer, because a green button on every card
+ * in a grid of thirty is a grid of green buttons.
+ */
+.card-get {
+  position: absolute;
+  right: 0.4rem;
+  bottom: 0.4rem;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  color: var(--dim);
+  background: #00000055;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.card:hover .card-get,
+.card:focus-within .card-get {
+  opacity: 1;
+}
+
+.card-get:hover {
+  color: var(--good);
+  background: #1e2b1eee;
+}
+
+/* No pointer, no hover: on a touch screen it is simply always there. */
+@media (hover: none) {
+  .card-get {
+    opacity: 1;
+  }
+}
+
+.mark.done {
+  color: var(--good);
+}
+
+.card-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.35rem 0.6rem;
+  border-top: 1px solid var(--edge);
+  font-size: 0.8rem;
+  color: var(--dim);
+}
+
+/* The model sits between the size and the hearts, and gives way first when a
+   narrow card runs out of room. */
+.card-foot .hinted:nth-child(2) {
+  overflow: hidden;
+}
+
+.card-foot .old {
+  margin-left: 2px;
+  padding: 0 3px;
+  border-radius: 3px;
+  background: var(--tile-on);
+  font-size: 0.7rem;
+}
+
+.stars,
+.likes,
+.talks,
+.size {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/*
+ * Filled in when it is yours, so a shelf of models says which ones you kept.
+ *
+ * Filled rather than merely coloured: an outline that changes hue is the one state
+ * people miss on a drawing this small, and the heart is the only mark on the site
+ * that has an inside to fill.
+ */
+.likes.on,
+.talk-act.on {
+  color: var(--accent);
+}
+
+.likes.on svg,
+.talk-act.on svg,
+.stage-tools .chip.on svg {
+  fill: currentColor;
+}
+
+/*
+ * Which of the two player models. Quiet, because it is a fact about the file and
+ * not a recommendation — but present on every card, because a three-pixel skin
+ * worn on the four-pixel model has a transparent stripe down both arms and
+ * everybody who has seen that read it as a broken file.
+ */
+.model {
+  font-size: 0.66rem;
+  letter-spacing: 0.04em;
+  padding: 0.05rem 0.3rem;
+  border-radius: 4px;
+  color: var(--dim);
+  background: var(--tile-hot);
+}
+
+.model.slim {
+  color: var(--accent);
+  background: var(--tile-on);
+}
+
+/* --------------------------------------------------------------- the window */
+
+/*
+ * A skin opened over the grid.
+ *
+ * The grid stays where it was, because what people do here is look at eleven skins
+ * to choose one - and a page for each of those eleven is eleven loads and eleven
+ * lost scroll positions.
+ */
+/*
+ * The one row and the one column are the window's size and no larger.
+ *
+ * Left to itself a grid row grows to what is inside it, and the model window holds a
+ * column of facts taller than the window: the row became 887 pixels on a screen with
+ * 742 to give, the window was centred in that, and it started 129 pixels down and
+ * ended under the bottom edge. A row that cannot grow keeps every window's
+ * `height: 100%` and `max-height: 100%` meaning the screen.
+ */
+.veil {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+  place-items: center;
+  padding: 1rem;
+  background: rgba(9, 11, 14, 0.72);
+  animation: veil-in 0.14s ease;
+}
+
+@keyframes veil-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.window {
+  display: flex;
+  flex-direction: column;
+  width: min(64rem, 100%);
+  /* Takes the height it is given rather than the height its contents happen to
+     want: the figure is the point of this window and it fills what is left. */
+  height: min(44rem, 100%);
+  background: var(--panel);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  animation: window-in 0.14s ease;
+}
+
+@keyframes window-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+/*
+ * Model windows, several at once, standing over the page instead of shutting it.
+ *
+ * The layer is the size of the screen and lets every press through to the catalogue,
+ * except on the windows themselves: the next model to open is found on the page, and
+ * a veil over it would mean closing one model to look at the second.
+ */
+.window-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+.window.floating {
+  position: fixed;
+  pointer-events: auto;
+  width: min(64rem, calc(100vw - 2rem));
+  height: min(44rem, calc(100vh - 2rem));
+  min-width: 32rem;
+  min-height: 22rem;
+  max-width: calc(100vw - 1rem);
+  max-height: calc(100vh - 1rem);
+  /* The browser's own corner for the size; see useMovable. */
+  resize: both;
+  overflow: hidden;
+  box-shadow: 0 18px 50px #00000080;
+}
+
+/* The one in front, which the keys belong to, has the brighter edge. */
+.window.floating.front {
+  border-color: #3a4656;
+}
+
+.window.floating .window-top {
+  cursor: grab;
+  touch-action: none;
+}
+
+/* A drag across the page selects nothing on its way. */
+body.dragging,
+body.dragging * {
+  user-select: none;
+  cursor: grabbing !important;
+}
+
+/* No room to move anything on a phone: each window takes the screen, as before. */
+@media (max-width: 46rem) {
+  .window.floating:not(.ask) {
+    left: 0 !important;
+    top: 0 !important;
+    width: 100vw;
+    height: 100dvh;
+    min-width: 0;
+    min-height: 0;
+    max-width: none;
+    max-height: none;
+    resize: none;
+    border-radius: 0;
+  }
+
+  .window.floating .window-top {
+    cursor: default;
+  }
+}
+
+.window-top {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--edge);
+}
+
+.window-said {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+}
+
+.window-said h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--accent);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.window-said .card-author {
+  justify-content: center;
+}
+
+.window-count {
+  flex: none;
+  font-size: 0.78rem;
+  color: var(--dim);
+}
+
+.window-body {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 19rem;
+  gap: 1px;
+  background: var(--edge);
+}
+
+.window-stage,
+.window-side {
+  background: var(--panel);
+  min-height: 0;
+}
+
+.window-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem;
+}
+
+/* All the room that is left after the buttons under it. The figure is what this
+   window is for, and a picture that sits in the middle of its own window at a
+   third of the size is the commonest way one of these looks unfinished. */
+.stage-box {
+  flex: 1;
+  align-self: stretch;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  /* The chequer says "these pixels are see-through", which on a figure with holes
+     in its jacket is a fact about the skin rather than about the page. */
+  background-color: #14181e;
+  background-image:
+    linear-gradient(45deg, #191e25 25%, transparent 25%),
+    linear-gradient(-45deg, #191e25 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #191e25 75%),
+    linear-gradient(-45deg, transparent 75%, #191e25 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.stage {
+  display: block;
+  cursor: grab;
+  touch-action: none;
+}
+
+.stage:active {
+  cursor: grabbing;
+}
+
+.stage-tools {
+  display: flex;
+  gap: 0.3rem;
+  flex: none;
+}
+
+/* Square and fixed: the header is not a row that shares its width out. */
+.top-right .chip {
+  width: 30px;
+  height: 30px;
+  flex: none;
+}
+
+.stage-tools .chip,
+.stage-tools a.chip {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 30px;
+  flex: none;
+  text-decoration: none;
+}
+
+/*
+ * The one green thing on the page.
+ *
+ * Taking the skin is what somebody came for, and the rest of this window is grey
+ * on purpose so that one control can be found without being read.
+ */
+.chip.go,
+a.chip.go {
+  color: var(--good);
+  border-color: #33502f;
+  background: #1e2b1e;
+}
+
+.chip.go:hover,
+a.chip.go:hover {
+  border-color: var(--good);
+  background: #26362450;
+  background-color: #253424;
+}
+
+.stage-hint {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--dim);
+}
+
+.window-side {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+
+.pane {
+  border-bottom: 1px solid var(--edge);
+}
+
+.pane:last-child {
+  border-bottom: 0;
+}
+
+.pane h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--dim);
+}
+
+.pane-body {
+  padding: 0 0.75rem 0.75rem;
+}
+
+/* ------------------------------------------------------------------ the face */
+
+.face {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.face-canvas {
+  image-rendering: pixelated;
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  background: #0a0c0f;
+}
+
+.face-keys {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.key {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.4rem;
+  color: var(--dim);
+  background: var(--tile);
+  border-color: var(--edge);
+}
+
+.key:hover:not(:disabled) {
+  color: var(--text);
+  background: var(--tile-hot);
+}
+
+.key.on {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--tile-on);
+}
+
+/* Switched off is still visible, because a legend that vanishes is a legend that
+   cannot be switched back on by somebody who has forgotten it was there. */
+.key.off {
+  opacity: 0.4;
+}
+
+.key-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+
+.key.wide .key-dot {
+  display: none;
+}
+
+.face-none,
+.face-note {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--dim);
+}
+
+/* ------------------------------------------------------------------- the facts */
+
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.tag {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.1rem 0.4rem;
+  font-size: 0.78rem;
+  color: var(--accent);
+  background: var(--tile-on);
+  border-radius: var(--radius);
+}
+
+.facts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  margin: 0;
+}
+
+.fact {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.2rem 0;
+  font-size: 0.85rem;
+}
+
+.fact-icon {
+  display: grid;
+  place-items: center;
+  color: var(--dim);
+}
+
+.fact-said {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.fact-said code {
+  font-size: 0.78rem;
+  color: var(--dim);
+}
+
+.fact-tail {
+  font-size: 0.68rem;
+  color: var(--accent);
+}
+
+@media (max-width: 46rem) {
+  /* One column under the other, and the window scrolls as a whole. The figure
+     keeps a floor so it cannot be squeezed to a line by a long panel. */
+  .window-body {
+    grid-template-columns: minmax(0, 1fr);
+    overflow-y: auto;
+  }
+
+  .stage-box {
+    min-height: 16rem;
+  }
+}
+
+/* ---------------------------------------------------------------- animations */
+
+/* The animations page brings its own panel, so it is a body of its own. */
+.emotes-body {
+  padding: 1rem;
+}
+
+.emotes-top {
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.emotes-top .hunt {
+  flex: 1;
+}
+
+/*
+ * Whose body the animation is shown on, beside the search.
+ *
+ * Sized to the name in it. A fixed width next to a field spanning the page reads as
+ * a second field rather than as a setting on the first one.
+ */
+.emotes-who {
+  flex: none;
+}
+
+.emotes-who .drop-face {
+  width: auto;
+  height: 100%;
+  padding: 0.4rem 0.7rem;
+  white-space: nowrap;
+}
+
+.emotes-who .drop-said {
+  flex: none;
+}
+
+/*
+ * The categories, as a tree.
+ *
+ * The pack's labels are one: every "JoJo" is also "Мульти вселенная". Flattened
+ * into fifty-seven names side by side, somebody looking for a dance from an anime
+ * has to guess which word the pack used.
+ */
+.kinds {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 0.35rem 0.5rem 0.6rem;
+  max-height: 22rem;
+  overflow-y: auto;
+}
+
+.kind {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  width: 100%;
+  padding: 0.2rem 0.35rem;
+  font-size: 0.82rem;
+  color: var(--dim);
+  border-radius: 4px;
+  border-color: transparent;
+  text-align: left;
+}
+
+.kind:hover {
+  color: var(--text);
+  background: var(--tile);
+}
+
+.kind.on {
+  color: var(--accent);
+  background: var(--tile-on);
+}
+
+.kind-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.kind small {
+  flex: none;
+  font-size: 0.7rem;
+  opacity: 0.7;
+}
+
+.kind-open,
+.kind-pick {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0;
+  border-color: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+.kind-open {
+  width: 16px;
+  flex: none;
+  justify-content: center;
+}
+
+.kind-pick {
+  flex: 1;
+  min-width: 0;
+}
+
+.kind-under {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-left: 1rem;
+  border-left: 1px solid var(--edge);
+  padding-left: 0.25rem;
+}
+
+/* A heading that is a heading and not a fold, where there is nothing to fold. */
+.group-title.as-label {
+  display: block;
+  padding: 0.5rem 0.75rem 0.15rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--dim);
+}
+
+/* ------------------------------------------------------------------- pages */
+
+.pages {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 1.2rem 0 0.4rem;
+}
+
+.pages .chip {
+  width: 34px;
+  flex: none;
+}
+
+.pages-said {
+  font-size: 0.85rem;
+  color: var(--dim);
+  min-width: 5rem;
+  text-align: center;
+}
+
+.emote-by {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  opacity: 0.8;
+}
+
+.emotes-top .hunt {
+  flex: 1;
+}
+
+.emotes-top .chip {
+  width: 38px;
+  flex: none;
+}
+
+/*
+ * Whose work this is, at the top of the page and again on every card.
+ *
+ * Seven hundred animations from one person, given away. The licence does not
+ * require this; the situation does.
+ */
+.emotes-credit {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.82rem;
+  color: var(--dim);
+  background: var(--tile);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+}
+
+.emotes-credit strong {
+  color: var(--text);
+}
+
+.emotes-credit span {
+  flex: 1;
+  min-width: 12rem;
+}
+
+.emotes-credit a {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--accent);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.emotes-credit a:hover {
+  text-decoration: underline;
+}
+
+.emotes-found {
+  margin: 0 0 0.5rem;
+  font-size: 0.8rem;
+  color: var(--dim);
+}
+
+.emotes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+  gap: 0.6rem;
+}
+
+.emote {
+  display: flex;
+  flex-direction: column;
+  background: var(--tile);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.emote:hover {
+  border-color: #3a4450;
+}
+
+.emote.on {
+  border-color: var(--accent);
+}
+
+.emote-view {
+  position: relative;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  background: #14181e;
+}
+
+.emote-view img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  /* The pack's icons are its own; they are shown as they were drawn. */
+  image-rendering: auto;
+}
+
+.emote-view .stage-box {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+}
+
+.emote-none {
+  font-size: 0.72rem;
+  color: var(--dim);
+}
+
+/* Quiet until the card is under the pointer: a grid of play buttons is a grid
+   of buttons rather than a grid of animations. */
+.emote-go {
+  position: absolute;
+  right: 0.35rem;
+  bottom: 0.35rem;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  color: var(--text);
+  background: #000000aa;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.emote:hover .emote-go,
+.emote.on .emote-go,
+.emote-go:focus-visible {
+  opacity: 1;
+}
+
+.emote-go:hover {
+  color: var(--accent);
+}
+
+@media (hover: none) {
+  .emote-go {
+    opacity: 1;
+  }
+}
+
+.emote-said {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.35rem 0.5rem;
+  border-top: 1px solid var(--edge);
+}
+
+.emote-name {
+  font-size: 0.78rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.emote-facts {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.72rem;
+  color: var(--dim);
+}
+
+.emote-facts span {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.stage.still {
+  cursor: default;
+}
+
+.stage-wait {
+  position: absolute;
+  font-size: 0.72rem;
+  color: var(--dim);
+}
+
+/* ---------------------------------------------------------------- who drew it */
+
+/*
+ * The line under a name, and the whole idea in one rule.
+ *
+ * "Said" and "shown" must not look the same. If they do, claiming a skin costs
+ * nothing and everybody claims one - which is exactly how a catalogue ends up
+ * crediting whoever asked first. So an unverified name carries a quiet "со слов"
+ * and a verified one carries a mark, and the difference is visible at a glance
+ * without accusing anybody of anything.
+ */
+.by {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.78rem;
+  color: var(--dim);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.by.small {
+  font-size: 0.72rem;
+  gap: 0.15rem;
+}
+
+.by-shown {
+  color: var(--good);
+}
+
+.by-said {
+  padding: 0 0.25rem;
+  border-radius: 3px;
+  background: var(--tile-hot);
+  font-size: 0.66rem;
+  opacity: 0.8;
+}
+
+.by a {
+  display: grid;
+  place-items: center;
+  color: var(--dim);
+}
+
+.by a:hover {
+  color: var(--accent);
+}
+
+.window-said .by {
+  justify-content: center;
+}
+
+/* ---------------------------------------------------------- asking where from */
+
+.window.ask {
+  width: min(34rem, 100%);
+  height: auto;
+  max-height: 100%;
+}
+
+/* As tall as what it asks; the model window's smallest size is far too big for it. */
+.window.ask.floating,
+.window.put.floating {
+  min-width: min(22rem, calc(100vw - 1rem));
+  min-height: 0;
+  max-height: calc(100vh - 2rem);
+}
+
+.ask-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.85rem;
+  overflow-y: auto;
+}
+
+.ask-why {
+  margin: 0 0 0.3rem;
+  font-size: 0.85rem;
+  color: var(--dim);
+}
+
+.ask-one {
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  background: var(--tile);
+}
+
+.ask-one.on {
+  border-color: var(--accent);
+  background: var(--tile-on);
+}
+
+.ask-pick {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.6rem 0.7rem;
+  text-align: left;
+  border-color: transparent;
+}
+
+.ask-mark {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  flex: none;
+  color: var(--dim);
+}
+
+.ask-one.on .ask-mark {
+  color: var(--accent);
+}
+
+.ask-said {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+/*
+ * The consequence, written on the option itself.
+ *
+ * The one place where explanations do not wait for a hover: this is the moment
+ * somebody decides whose name goes under a picture, and it is worth two lines to
+ * be sure they knew what they were choosing.
+ */
+.ask-said small {
+  font-size: 0.75rem;
+  color: var(--dim);
+  line-height: 1.35;
+}
+
+.ask-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0 0.7rem 0.6rem 3rem;
+}
+
+.ask-fields input {
+  padding: 0.3rem 0.5rem;
+  font-size: 0.85rem;
+  background: var(--panel);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+}
+
+.ask-no {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid #5b3535;
+  border-radius: var(--radius);
+  background: #241a1a;
+}
+
+.ask-no p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--warn);
+}
+
+.ask-no .chip {
+  flex: none;
+  width: auto;
+  padding: 0 0.7rem;
+}
+
+.ask-warn {
+  font-size: 0.78rem;
+  opacity: 0.85;
+}
+
+.ask-note {
+  flex: 1;
+  font-size: 0.78rem;
+  color: var(--dim);
+}
+
+/* ------------------------------------------------------------- putting them in */
+
+.window.put {
+  width: min(40rem, 100%);
+  height: auto;
+  max-height: 100%;
+}
+
+.put-body {
+  padding: 0.85rem;
+  overflow-y: auto;
+}
+
+/*
+ * The place to drop a folder on.
+ *
+ * Large, because it is the only thing on the window until something has been
+ * chosen, and a small one reads as decoration next to a "choose file" button.
+ */
+.drop-here {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 1.6rem 1rem;
+  color: var(--dim);
+  text-align: center;
+  cursor: pointer;
+  border: 1px dashed var(--edge);
+  border-radius: var(--radius);
+  background: var(--tile);
+}
+
+.drop-here:hover,
+.drop-here.over {
+  color: var(--text);
+  border-color: var(--accent);
+  background: var(--tile-hot);
+}
+
+.drop-here small {
+  font-size: 0.75rem;
+  opacity: 0.75;
+}
+
+.put-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: 0.75rem;
+}
+
+.put-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.4rem;
+  background: var(--tile);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+}
+
+.put-row.done {
+  border-color: #33502f;
+}
+
+.put-row.refused {
+  border-color: #5b3535;
+}
+
+.put-face {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 36px;
+  flex: none;
+  color: var(--warn);
+}
+
+.put-face .figure {
+  image-rendering: pixelated;
+}
+
+.put-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.85rem;
+}
+
+.put-name:disabled {
+  color: var(--dim);
+}
+
+.put-state {
+  display: flex;
+  align-items: center;
+  flex: none;
+  color: var(--good);
+}
+
+.put-said {
+  font-size: 0.75rem;
+  color: var(--dim);
+}
+
+.put-said.bad {
+  color: var(--warn);
+}
+
+.put-foot {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.85rem;
+  border-top: 1px solid var(--edge);
+}
+
+/*
+ * The models' upload once there is something in it: the files, the chosen one, its
+ * fields. As tall as the model window, because the middle is the same figure.
+ */
+.window.put.wide {
+  width: min(72rem, 100%);
+  height: min(44rem, 100%);
+}
+
+.put-grid {
+  display: grid;
+  /* The fields column fits the ten colour squares on one line. */
+  grid-template-columns: 15rem minmax(0, 1fr) 21.5rem;
+  flex: 1;
+  min-height: 0;
+}
+
+/* A folder dragged over the window: anywhere on it takes the files. */
+.put-grid.over {
+  outline: 2px dashed var(--accent);
+  outline-offset: -6px;
+}
+
+.put-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-height: 0;
+  padding: 0.7rem;
+  border-right: 1px solid var(--edge);
+  overflow-y: auto;
+}
+
+.chip.put-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  flex: none;
+  height: 30px;
+  font-size: 0.82rem;
+}
+
+.put-list .put-rows {
+  margin-top: 0;
+}
+
+.put-list .put-row {
+  cursor: pointer;
+}
+
+.put-list .put-row:hover {
+  background: var(--tile-hot);
+}
+
+.put-row.chosen {
+  border-color: var(--accent);
+  background: var(--tile-on);
+}
+
+.put-list .put-name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.put-look {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-height: 0;
+  padding: 0.7rem;
+}
+
+.put-look-none {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: var(--dim);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.put-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-height: 0;
+  padding: 0.7rem 0.8rem;
+  border-left: 1px solid var(--edge);
+  overflow-y: auto;
+}
+
+/* A field's name, and on the far side the way to give it to every model. */
+.put-field-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  min-height: 20px;
+}
+
+.tiny.to-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* What turning the model is for, with the way back from it on the far side. */
+.put-angle {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+}
+
+.put-angle .ask-note {
+  flex: 1;
+}
+
+@media (max-width: 60rem) {
+  .put-grid {
+    grid-template-columns: minmax(0, 1fr);
+    overflow-y: auto;
+  }
+
+  .put-list {
+    border-right: none;
+    border-bottom: 1px solid var(--edge);
+    max-height: 11rem;
+  }
+
+  .put-look {
+    min-height: 18rem;
+  }
+
+  .put-fields {
+    border-left: none;
+    border-top: 1px solid var(--edge);
+    overflow-y: visible;
+  }
+}
+
+/* -------------------------------------------------------- the figure's tabs */
+
+.stage-tabs {
+  display: flex;
+  align-self: stretch;
+  gap: 0.25rem;
+  flex: none;
+}
+
+.stage-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.82rem;
+  color: var(--dim);
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+}
+
+.stage-tab:hover:not(:disabled) {
+  color: var(--text);
+  background: var(--tile-hot);
+}
+
+.stage-tab.on {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--tile-on);
+}
+
+.stage-tab:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.stage-tab-count {
+  min-width: 1.1rem;
+  padding: 0 0.25rem;
+  font-size: 0.7rem;
+  line-height: 1.1rem;
+  text-align: center;
+  background: var(--tile);
+  border: 1px solid var(--edge);
+  border-radius: 0.55rem;
+}
+
+/*
+ * Every animation of the model, a row each.
+ *
+ * Short and scrolling: the figure above is what is being looked at, and twenty
+ * animations listed at full height would push it off the window.
+ */
+.clip-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-self: stretch;
+  flex: none;
+  max-height: 9.5rem;
+  overflow-y: auto;
+  padding: 0.25rem;
+  background: var(--tile);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+}
+
+.clip-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.84rem;
+  text-align: left;
+  color: var(--dim);
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 6px;
+}
+
+.clip-row:hover {
+  color: var(--text);
+  background: var(--tile-hot);
+}
+
+.clip-row.on {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--tile-on);
+}
+
+.clip-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.clip-loop {
+  display: grid;
+  place-items: center;
+  color: var(--dim);
+}
+
+.clip-length {
+  flex: none;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The one playing, named beside the button that stops it; a press opens the list. */
+.stage-tools .chip.clip-now {
+  display: block;
+  line-height: 28px;
+  width: auto;
+  max-width: 13rem;
+  padding: 0 0.7rem;
+  font-size: 0.8rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* The skins' batch tags, a line in the window's foot. */
+.put-tags {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: 1;
+  min-width: 0;
+  padding: 0.35rem 0.6rem;
+  color: var(--dim);
+  background: var(--tile);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+}
+
+.put-tags input {
+  font-size: 0.85rem;
+}
+
+/*
+ * Tags as buttons and the field to add one, inside one box that looks like a field.
+ *
+ * One box rather than chips above an input, so the tags read as what is in the field
+ * — which is what they are — and the line grows downward when there are many.
+ */
+.tag-pick {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 34px;
+  padding: 0.25rem 0.45rem;
+  background: var(--tile);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  cursor: text;
+}
+
+.tag-pick:focus-within {
+  border-color: var(--accent);
+}
+
+.tag-pick.off {
+  opacity: 0.6;
+}
+
+/* The box is the field; the input inside it is only where the typing goes. Written
+   against the dialog's own rule for inputs, which would draw a second box inside. */
+.tag-pick input,
+.ask-fields .tag-pick input {
+  flex: 1;
+  min-width: 8rem;
+  padding: 0.15rem 0.1rem;
+  font-size: 0.85rem;
+  background: none;
+  border: none;
+  border-radius: 0;
+}
+
+.tag-pick .taken {
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+}
+
+.tag-pick .taken button {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.tag-list {
+  max-height: 16rem;
+  overflow-y: auto;
+}
+
+/* Making a new tag is a different act from picking one, and looks it. */
+.tag-new {
+  color: var(--accent);
+  border-top: 1px solid var(--edge);
+}
+
+.put-genders {
+  display: flex;
+  gap: 0.2rem;
+  flex: none;
+}
+
+.put-genders .chip {
+  width: 30px;
+  height: 30px;
+  flex: none;
+  font-size: 0.8rem;
+}
+
+.chip.put-send {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: none;
+  height: 30px;
+  padding: 0 0.7rem;
+}
+
+.spin {
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ------------------------------------------------------------------ your own */
+
+.mine-top {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0 0.25rem 1rem;
+}
+
+.mine-top img,
+.mine-none {
+  width: 56px;
+  height: 56px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  object-fit: cover;
+  color: var(--dim);
+  background: var(--tile);
+}
+
+.mine-said {
+  flex: 1;
+  min-width: 0;
+}
+
+.mine-said h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.mine-facts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.85rem;
+  color: var(--dim);
+  font-size: 0.82rem;
+}
+
+/*
+ * Downloads, hearts and comments across everything of yours.
+ *
+ * A second group behind a rule, because the first three count what you have and
+ * these three say whether any of it was any use to anybody. Both are sums over the
+ * models the page already has, so neither costs a request.
+ */
+.mine-sums {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding-left: 0.85rem;
+  border-left: 1px solid var(--edge);
+}
+
+.chip.mine-put {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: none;
+  height: 32px;
+  padding: 0 0.8rem;
+}
+
+/*
+ * A page with nothing on it, saying what to do about that.
+ *
+ * The one screen everybody sees first and the one nobody designs. An empty grid
+ * with no words on it reads as broken rather than as new.
+ */
+.alone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 3.5rem 1rem;
+  text-align: center;
+  color: var(--dim);
+}
+
+.alone h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.alone p {
+  margin: 0;
+  max-width: 26rem;
+}
+
+.chip.alone-go {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: 32px;
+  padding: 0 0.9rem;
+  margin-top: 0.5rem;
+  text-decoration: none;
+}
+
+.alone-ways {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.alone-go.off {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.alone-go.off:hover {
+  color: var(--dim);
+  background: var(--tile);
+}
+
+/* -------------------------------------------------------------- the filters */
+
+/*
+ * Follows the page down.
+ *
+ * It always said `sticky` and it never stuck, for the reason these never do: a
+ * sticky thing taller than the window has nothing to stick to - the browser holds
+ * it until its bottom edge arrives, which for a panel of nine sections is after
+ * the whole page. Bounded to the height of the window with its own scroll inside,
+ * it fits, and so it holds. The lists it opens are drawn at the end of the
+ * document, so its scroll cannot cut them off.
+ */
+.filters {
+  position: sticky;
+  top: 1rem;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--panel);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+}
+
+.filters::-webkit-scrollbar {
+  width: 8px;
+}
+
+.filters::-webkit-scrollbar-thumb {
+  background: var(--edge);
+  border-radius: 4px;
+}
+
+.filters-top {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--panel);
+}
+
+.filters-top {
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.filters-top {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.5rem 0.55rem 0.75rem;
+  border-bottom: 1px solid var(--edge);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--dim);
+}
+
+.filters-top span {
+  margin-right: auto;
+}
+
+/*
+ * The search, at the head of the panel.
+ *
+ * Above the sections and not inside one, because it is the thing a hand reaches for
+ * first and a folded section would hide it. Where it looks sits straight under the
+ * field, stacked rather than side by side: in a column 17.5rem wide, a dropdown
+ * beside the field leaves the field too short to read what was typed in it.
+ */
+.filters-hunt {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--edge);
+}
+
+.group {
+  border-bottom: 1px solid var(--edge);
+}
+
+.group h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  padding-right: 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--dim);
+}
+
+.group-title {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex: 1;
+  padding: 0.5rem 0.25rem 0.5rem 0.6rem;
+  text-align: left;
+  color: inherit;
+  font: inherit;
+  text-transform: inherit;
+  letter-spacing: inherit;
+}
+
+.group-title:hover {
+  color: var(--text);
+}
+
+.caret {
+  transition: transform 0.12s ease;
+}
+
+.group.shut .caret {
+  transform: rotate(-90deg);
+}
+
+.hint {
+  font-size: 0.7rem;
+  opacity: 0.75;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/*
+ * Folding, smoothly.
+ *
+ * A grid row going from nothing to its own size is the one way of animating an
+ * unknown height in CSS alone. Measuring it in JavaScript first is what makes
+ * these things stutter on the very first open, which is the one that matters.
+ */
+.group-fold {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 0.18s ease;
+}
+
+.group.shut .group-fold {
+  grid-template-rows: 0fr;
+}
+
+.group-fold > .group-body {
+  overflow: hidden;
+  min-height: 0;
+  padding: 0 0.6rem 0.7rem;
+  opacity: 1;
+  transition: opacity 0.16s ease, padding 0.18s ease;
+}
+
+.group.shut .group-fold > .group-body {
+  opacity: 0;
+  padding-bottom: 0;
+}
+
+/* A whole grid swapped in one frame reads as a glitch rather than as an answer. */
+.settling {
+  opacity: 1;
+  transition: opacity 0.16s ease;
+}
+
+.settling.off {
+  opacity: 0.25;
+}
+
+.row {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.row.wrap {
+  flex-wrap: wrap;
+}
+
+.chip {
+  display: grid;
+  place-items: center;
+  flex: 1;
+  height: 30px;
+  color: var(--dim);
+  background: var(--tile);
+  border-color: var(--edge);
+}
+
+.chip:hover {
+  color: var(--text);
+  background: var(--tile-hot);
+}
+
+.chip.on {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--tile-on);
+}
+
+/*
+ * Something inside is narrowing the list, and the panel is shut so it cannot say so.
+ *
+ * A dot and not the lit state of `on`, which this button already uses for "the panel
+ * is open": the two are different facts and an open panel with nothing chosen is as
+ * ordinary as a shut one with a search in it.
+ */
+.chip.marked {
+  position: relative;
+  overflow: visible;
+}
+
+.chip.marked::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 7px;
+  height: 7px;
+  background: var(--accent);
+  border: 1px solid var(--panel);
+  border-radius: 50%;
+}
+
+.pill {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.8rem;
+  color: var(--dim);
+  background: var(--tile);
+  border-color: var(--edge);
+}
+
+.pill small {
+  font-size: 0.68rem;
+  opacity: 0.6;
+}
+
+.pill:hover:not(:disabled) {
+  color: var(--text);
+  background: var(--tile-hot);
+}
+
+.pill.on {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--tile-on);
+}
+
+.pill.out.on {
+  color: var(--warn);
+  border-color: var(--warn);
+}
+
+.either {
+  display: flex;
+  gap: 2px;
+}
+
+.tiny {
+  padding: 0.1rem 0.35rem;
+  font-size: 0.68rem;
+  color: var(--dim);
+  background: var(--tile);
+  border-color: var(--edge);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.tiny.on {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.55rem;
+  background: var(--tile);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  color: var(--dim);
+}
+
+.field:focus-within {
+  border-color: var(--accent);
+}
+
+.field input {
+  font-size: 0.85rem;
+}
+
+.switch {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  padding: 0.35rem 0.3rem;
+  text-align: left;
+}
+
+.switch:hover {
+  background: var(--tile-hot);
+}
+
+.switch-box {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--edge);
+  border-radius: 4px;
+  background: var(--tile);
+  color: var(--accent);
+}
+
+.switch.on .switch-box {
+  border-color: var(--accent);
+  background: var(--tile-on);
+}
+
+.switch-text {
+  font-size: 0.85rem;
+  color: var(--dim);
+}
+
+.switch.on .switch-text {
+  color: var(--text);
+}
+
+.switch-text small {
+  display: block;
+  font-size: 0.7rem;
+  opacity: 0.7;
+}
+
+.empty {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--dim);
+}
+
+.filters-found {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.82rem;
+  color: var(--dim);
+}
+
+/* ------------------------------------------------------------ narrow screens */
+
+@media (max-width: 60rem) {
+  /* No room for a column beside the grid, so the panel takes the whole width
+     when it is open and the grid has it back when it is not. */
+  .body,
+  .body.panel-open {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .body.panel-open .filters {
+    position: static;
+    max-height: none;
+  }
+
+  /*
+   * A chosen count is a choice about a wide screen. Five to a row on a phone is
+   * five thumbnails nobody can see, so here it goes back to what fits.
+   *
+   * The floor is measured, not picked. The foot row of a card needs 122 pixels for
+   * its four facts — 62 of them the licence, which is the widest — and the card adds
+   * its own padding, so a card under about 138 pixels cuts the licence off: at
+   * 7.5rem it showed "Свобо" and clipped the two counts after it, on a phone at
+   * three to a row and on a tablet at six. At 9.5rem the narrowest card is 176 and
+   * the row fits whole.
+   */
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  }
+}
+
+/*
+ * A phone, where the panel can stand neither beside the grid nor after it.
+ *
+ * Under 60rem the panel already took the whole width, but it stayed in the flow:
+ * after the grid and after the footer. Measured on a 393-pixel screen, it began 478
+ * pixels down with the footer above it, and with a catalogue of more than two models
+ * it begins below everything — so pressing "Фильтры" looked like nothing happening.
+ * Here it leaves the flow and comes up from the bottom edge instead, over the grid,
+ * which keeps its place and its scroll.
+ */
+@media (max-width: 46rem) {
+  .body.panel-open .filters {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 60; /* under the veil at 80 and the floating windows at 90 */
+    max-height: 72dvh;
+    overflow-y: auto;
+    border-bottom: none;
+    border-radius: var(--radius) var(--radius) 0 0;
+    box-shadow: 0 -0.5rem 1.5rem rgba(0, 0, 0, 0.5);
+  }
+
+  /* The count answers every press in the panel, and at the foot of nine sections it
+     is a scroll away. Held at the bottom edge, it is read without one. */
+  .body.panel-open .filters-found {
+    position: sticky;
+    bottom: 0;
+    background: var(--panel);
+    border-top: 1px solid var(--edge);
+  }
+
+  /* While the sheet is up it covers the end of the page, the footer included. */
+  .body.panel-open .grid-side {
+    padding-bottom: 72dvh;
+  }
+
+  /* The window is the whole screen here, so its foot belongs at the bottom of the
+     screen — not halfway up it, right under 190 pixels of drop zone. */
+  .put-body {
+    flex: 1;
+  }
+}
+
+/* ------------------------------------------------------------- the dropdowns */
+
+/*
+ * The rule this exists for: nothing is ever laid out as a plain run of values.
+ * Twelve tags today is forty next month, and a panel of pills falls apart on the
+ * day. One line at any length, and searchable, which a scattering never is.
+ */
+.drop {
+  position: relative;
+}
+
+.drop-face {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+  padding: 0.4rem 0.5rem;
+  background: var(--tile);
+  border-color: var(--edge);
+  color: var(--text);
+  font-size: 0.85rem;
+}
+
+.drop-face:hover {
+  background: var(--tile-hot);
+}
+
+.drop.open .drop-face {
+  border-color: var(--accent);
+}
+
+.drop-said {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.drop-none {
+  color: var(--dim);
+}
+
+.drop .caret {
+  flex: none;
+  color: var(--dim);
+  transition: transform 0.15s ease;
+}
+
+.drop.open .caret {
+  transform: rotate(180deg);
+}
+
+.drop-picked {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.35rem;
+}
+
+.taken {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.1rem 0.35rem;
+  font-size: 0.75rem;
+  color: var(--accent);
+  background: var(--tile-on);
+  border-color: var(--accent);
+}
+
+.taken.out {
+  color: var(--warn);
+  border-color: var(--warn);
+}
+
+/*
+ * Anything that has to appear over everything is put at the end of the document
+ * and placed by measuring. Three separate ancestors here clip what overflows —
+ * the panel for its rounded corners, the section for its fold, the card for its
+ * own — and every one of them is right. A clipped child cannot be stacked out of
+ * being clipped; it has to leave.
+ */
+.floating {
+  position: fixed;
+  z-index: 90;
+  animation: drop-in 0.13s ease;
+}
+
+.drop-list {
+  background: var(--panel);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+@keyframes drop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.drop-hunt {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.5rem;
+  border-bottom: 1px solid var(--edge);
+  color: var(--dim);
+}
+
+.drop-hunt input {
+  font-size: 0.82rem;
+}
+
+.drop-scroll {
+  max-height: 15rem;
+  overflow-y: auto;
+}
+
+/* Said inside the list's own edges, not against its border. */
+.drop-list .empty {
+  padding: 0.5rem 0.6rem;
+}
+
+.drop-one {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.85rem;
+  color: var(--dim);
+  border-radius: 0;
+  text-align: left;
+}
+
+.drop-one:hover:not(:disabled) {
+  color: var(--text);
+  background: var(--tile-hot);
+}
+
+.drop-one.on {
+  color: var(--accent);
+}
+
+.drop-tick {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 14px;
+}
+
+.drop-label {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.drop-one small {
+  font-size: 0.7rem;
+  opacity: 0.6;
+}
+
+/* ----------------------------------------------------------------- the hints */
+
+/*
+ * An explanation is worth having once — the first time somebody wonders what a
+ * control means. Printed under every label it is noise on every visit, and noise
+ * on a control panel is what stops people reading the panel at all.
+ */
+.hinted {
+  position: relative;
+  display: inline-flex;
+}
+
+/* In a row of icon buttons each wrapper has to stretch like the button it holds. */
+.row > .hinted {
+  flex: 1;
+}
+
+.group-body > .hinted {
+  display: flex;
+  width: 100%;
+}
+
+.hint-box {
+  display: block;
+  width: max-content;
+  max-width: 15rem;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: var(--text);
+  background: #0c0f13;
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  pointer-events: none;
+}
+
+/* The switches carry their own hint, so the row has to be the thing it hangs on. */
+.switch,
+.mark,
+.size,
+.chip {
+  position: relative;
+}
+
+/* ------------------------------------------------------------------- models */
+
+/*
+ * The models catalogue, which is the skins' catalogue with a picture where the
+ * figure was. Everything not here is shared with the skin pages as it is.
+ */
+
+/* A closed section answers with one line and a way back, in the middle of the page. */
+.later {
+  flex: 1;
+  display: grid;
+  place-items: center;
+}
+
+/* Square, whatever the number to a row: a model can be wide or tall, a skin cannot. */
+.model-figure {
+  aspect-ratio: 1 / 1;
+  padding: 0.5rem;
+  /* So that a blurred picture stays inside its card: a blur spreads past the edge
+     of what it is applied to, and there is only half a rem of padding to spread into. */
+  overflow: hidden;
+}
+
+.model-picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.model-none {
+  display: grid;
+  place-items: center;
+  color: var(--edge);
+}
+
+.mark.bad {
+  color: var(--warn);
+}
+
+/* The one mark that is a word, because "18+" is read faster than any drawing of it. */
+.mark.adult {
+  width: auto;
+  padding: 0 0.3rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--warn);
+}
+
+/*
+ * A model for adults at the middle level: there, and not readable from across a room.
+ *
+ * Scaled up a little because a blur fades out at the edges of what it blurs, and an
+ * unscaled picture would be left with a sharp-cornered halo of background round it.
+ */
+.veiled {
+  filter: blur(14px);
+  transform: scale(1.06);
+}
+
+/*
+ * The cover over the figure in the window, and the room it is drawn in.
+ *
+ * The wrapper exists only to have an edge for the cover to sit against, so it takes
+ * the same place in the column the stage used to take and keeps the stage's own
+ * stretching intact. The cover goes over a model that is loaded and turning rather
+ * than instead of it, so that one press shows it with no waiting.
+ */
+.stage-wrap {
+  position: relative;
+  flex: 1;
+  align-self: stretch;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.stage-cover {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 0.6rem;
+  border-radius: var(--radius);
+  background: #0f1319c0;
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+}
+
+.stage-cover p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text);
+}
+
+.stage-cover .chip {
+  height: 32px;
+  padding: 0 0.9rem;
+}
+
+.stars.on {
+  color: var(--accent);
+}
+
+/* The canvas takes the whole box and the box decides the size, not the other way. */
+.model-box {
+  position: relative;
+}
+
+.model-stage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* The clip list sits in the row of square buttons and is the one wide thing in it. */
+.stage-hint.bad {
+  color: var(--warn);
+}
+
+.window-missing {
+  margin: 0;
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--warn);
+}
+
+/* What the person who put it up wrote, kept as they wrote it, line breaks and all. */
+.model-said {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.fact-said .warn,
+.put-said.warn {
+  color: var(--warn);
+}
+
+.fact-said a {
+  color: inherit;
+}
+
+.fact-said a:hover {
+  color: var(--accent);
+}
+
+/*
+ * Wrapping, because the side column is narrower than these buttons laid end to end
+ * and a third arrived with the 18+ mark. Without it the last one broke its own text
+ * across two lines and ran out past the panel's edge.
+ */
+.check-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.5rem;
+}
+
+.check-tools .chip {
+  padding: 0 0.6rem;
+  white-space: nowrap;
+}
+
+/* Undoing, deleting, taking down: red, and only ever one press away from a question. */
+.chip.bad {
+  color: var(--warn);
+  border-color: #5b3535;
+  background: #241a1a;
+}
+
+.chip.bad:hover {
+  border-color: var(--warn);
+  background: #2e1f1f;
+}
+
+/* The skins' fields stand under a choice and are indented to it; these stand alone. */
+.ask-fields.wide {
+  gap: 0.6rem;
+  padding: 0;
+}
+
+.ask-fields label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  color: var(--dim);
+}
+
+.ask-fields label small {
+  margin-left: 0.3rem;
+  opacity: 0.8;
+}
+
+/* A field made of several controls, laid out like a label without being one. */
+.ask-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  color: var(--dim);
+}
+
+/* -------------------------------------------------------------- backgrounds */
+
+/*
+ * A colour in place of the chequer, behind a card's picture or a window's figure.
+ *
+ * The picture is transparent, so the colour is all that changes: nothing is drawn
+ * again when an author picks another one or the person looking picks their own.
+ */
+.card-figure.backed,
+.stage-box.backed {
+  background-image: none;
+  background-color: var(--backdrop);
+}
+
+/* On a light colour the light marks made for the dark chequer would vanish. */
+.card-figure.backed.light .card-rank,
+.stage-box.backed.light .stage-wait {
+  color: #3a4250;
+}
+
+.card-figure.backed.light .mark {
+  color: #3a4250;
+  background: #ffffffaa;
+}
+
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.swatch {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  color: var(--dim);
+  border: 1px solid var(--edge);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.swatch:hover {
+  border-color: var(--dim);
+}
+
+/* Chosen: a ring outside the colour, so the colour itself is not covered. */
+.swatch.on {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--panel), 0 0 0 3px var(--accent);
+}
+
+/* None is the chequer it leaves in place. */
+.swatch.none {
+  background-color: #1e242c;
+  background-image:
+    linear-gradient(45deg, #2a313b 25%, transparent 25%),
+    linear-gradient(-45deg, #2a313b 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #2a313b 75%),
+    linear-gradient(-45deg, transparent 75%, #2a313b 75%);
+  background-size: 8px 8px;
+  background-position: 0 0, 0 4px, 4px -4px, -4px 0;
+}
+
+.swatch.own {
+  background: var(--tile);
+}
+
+/* The system's picker opens from the whole square; the field itself is not seen. */
+.swatch.own input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* The header's button shows the colour chosen, or the chequer when there is none. */
+.backdrop-dot {
+  width: 14px;
+  height: 14px;
+  border: 1px solid #ffffff40;
+  border-radius: 3px;
+}
+
+.backdrop-dot.none {
+  background-color: #1e242c;
+  background-image:
+    linear-gradient(45deg, #3a4250 25%, transparent 25%),
+    linear-gradient(-45deg, #3a4250 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #3a4250 75%),
+    linear-gradient(-45deg, transparent 75%, #3a4250 75%);
+  background-size: 6px 6px;
+  background-position: 0 0, 0 3px, 3px -3px, -3px 0;
+}
+
+.backdrop-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  width: max-content;
+  max-width: calc(100vw - 2rem);
+  padding: 0.6rem 0.7rem 0.7rem;
+  background: var(--panel);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+}
+
+.backdrop-mode .tiny {
+  padding: 0.2rem 0.5rem;
+  font-size: 0.75rem;
+}
+
+.backdrop-mode .tiny:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* Every field somebody writes sentences into, wherever it stands. */
+.ask-fields textarea,
+.policy-word textarea,
+.talk-write textarea {
+  padding: 0.4rem 0.5rem;
+  font: inherit;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--text);
+  background: var(--panel);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  resize: vertical;
+}
+
+.ask-link {
+  align-self: flex-start;
+  margin-top: -0.35rem;
+  font-size: 0.78rem;
+  color: var(--accent);
+}
+
+.ask-wide {
+  flex: none;
+  align-self: flex-start;
+  padding: 0 0.8rem;
+}
+
+.put-face img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+/* ------------------------------------------------------------ your own, more */
+
+.mine-part {
+  margin-top: 1.75rem;
+}
+
+.mine-head {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0 0 0.6rem;
+  padding: 0 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--dim);
+}
+
+/* A heading that asks what it means is still a heading, not a line of text. */
+.mine-part > .hinted {
+  display: flex;
+}
+
+/*
+ * How many are on this shelf, in the heading itself.
+ *
+ * Because the shelf answers a question about a number — how much is not published
+ * yet — and counting a grid of cards by eye is the thing a heading is there to save.
+ */
+.mine-count {
+  min-width: 1.2rem;
+  padding: 0 0.3rem;
+  box-sizing: border-box;
+  font-size: 0.7rem;
+  line-height: 1.2rem;
+  letter-spacing: 0;
+  text-align: center;
+  color: var(--dim);
+  background: var(--tile);
+  border: 1px solid var(--edge);
+  border-radius: 0.6rem;
+}
+
+.notices,
+.queue {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*
+ * One notice, two lines: what happened, then when and what to do about it.
+ *
+ * It used to be one line across the width of the page. In a menu that width is gone,
+ * and a sentence, a time and a button sharing 24rem left the sentence three words
+ * wide. The icon keeps its own column beside both lines.
+ */
+.notice {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.3rem 0.6rem;
+  padding: 0.45rem 0.7rem;
+  font-size: 0.85rem;
+  color: var(--dim);
+  background: var(--tile);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+}
+
+.notice > svg {
+  grid-row: span 2;
+  align-self: start;
+  margin-top: 0.1rem;
+}
+
+/* Not seen before this visit: the only thing in the list asking to be read first. */
+.notice.fresh {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.notice-said {
+  grid-column: 2 / 4;
+}
+
+.notice-when {
+  font-size: 0.75rem;
+}
+
+/* The ways out of a notice — to the clause, to the model — at the end of its second line. */
+.notice-acts {
+  display: flex;
+  justify-self: end;
+  gap: 0.3rem;
+}
+
+.notice-go {
+  width: auto;
+  height: 26px;
+  padding: 0 0.7rem;
+  flex: none;
+  white-space: nowrap;
+}
+
+.queue-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.5rem 0.7rem;
+  background: var(--tile);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+}
+
+.queue-name {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 12rem;
+  flex: none;
+  padding: 0;
+  text-align: left;
+  font-size: 0.88rem;
+  color: var(--accent);
+  background: none;
+  border: 0;
+}
+
+.queue-name small {
+  font-size: 0.75rem;
+  color: var(--dim);
+}
+
+.queue-said {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.queue-one {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+}
+
+.queue-one.warn {
+  color: var(--warn);
+}
+
+.queue-one q {
+  color: var(--dim);
+  overflow-wrap: anywhere;
+}
+
+.queue-one small {
+  font-size: 0.72rem;
+  color: var(--dim);
+}
+
+/* A card rather than a bare field, since it is the one thing here that reaches everybody. */
+.policy-word {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.8rem;
+  background: var(--tile);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+}
+
+.policy-word p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--dim);
+}
+
+.policy-word label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  color: var(--dim);
+}
+
+
+.policy-go {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.4rem;
+}
+
+/* A press of its own, not one of a row of equal buttons: as wide as its own words. */
+.policy-go .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: none;
+  padding: 0 0.75rem;
+}
+
+/* ------------------------------------------------------- rules and notices */
+
+/*
+ * A page meant to be read, which is the one thing on this site that wants a column
+ * narrower than the window. Measured in characters rather than pixels: the width a
+ * line of text can be read at is a property of the text, not of the screen.
+ */
+.paper {
+  flex: 1;
+  width: min(46rem, 100%);
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 2rem;
+}
+
+.paper-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1.5rem;
+}
+
+/* A chip elsewhere is one of a row of equal buttons, laid out as a grid; here it is a
+   link with a mark beside its name, so it takes the width of its own words. */
+.paper-tabs a.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: none;
+  padding: 0 0.75rem;
+  text-decoration: none;
+}
+
+.paper-text h1 {
+  margin: 0 0 1rem;
+  font-size: 1.5rem;
+}
+
+.paper-text a {
+  color: var(--accent);
+}
+
+/*
+ * What is on the page, folded under one button.
+ *
+ * A button and not a list of ten links under the title: the parts are right below as
+ * cards, and a list in front of them is ten lines to scroll past on every visit.
+ */
+.paper-toc {
+  margin-bottom: 1rem;
+}
+
+.paper-toc-face {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.75rem;
+  color: var(--text);
+  font-size: 0.88rem;
+  background: var(--tile);
+  border-color: var(--edge);
+}
+
+.paper-toc-face:hover {
+  background: var(--tile-hot);
+}
+
+.paper-toc .caret {
+  color: var(--dim);
+  transition: transform 0.15s ease;
+}
+
+.paper-toc.open .caret {
+  transform: rotate(180deg);
+}
+
+.paper-toc.open .paper-toc-face {
+  border-color: var(--accent);
+}
+
+.paper-toc-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: 0.15rem 1rem;
+  margin-top: 0.4rem;
+  padding: 0.5rem 0.6rem;
+  background: var(--panel);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+}
+
+.paper-text .paper-toc-list a {
+  display: flex;
+  gap: 0.45rem;
+  padding: 0.3rem 0.35rem;
+  color: var(--text);
+  font-size: 0.88rem;
+  text-decoration: none;
+  border-radius: var(--radius);
+}
+
+.paper-text .paper-toc-list a:hover {
+  background: var(--tile-hot);
+}
+
+/*
+ * One part of a paper, as a card.
+ *
+ * The cards are what makes it read as a set of rules rather than as an essay: each
+ * part is visibly one subject with its edges, and the eye finds the fourth part by
+ * counting boxes, not by reading headings.
+ */
+.paper-part {
+  margin-top: 0.85rem;
+  padding: 0.85rem 0.9rem 0.6rem;
+  background: var(--panel);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  scroll-margin-top: 1rem;
+}
+
+.paper-part h2 {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0 0 0.45rem;
+  font-size: 1.02rem;
+  font-weight: 650;
+  color: var(--text);
+}
+
+.paper-part-n {
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.clauses {
+  display: grid;
+  gap: 0.1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*
+ * A clause: its number in a column of its own, then what it says.
+ *
+ * The column keeps every number at one edge, so a page of them reads down like the
+ * margin of a contract, and "4.10" lines up with "4.1" instead of pushing its text.
+ */
+.clause {
+  display: grid;
+  grid-template-columns: 3.4rem minmax(0, 1fr);
+  gap: 0.35rem;
+  padding: 0.4rem 0.45rem 0.4rem 0.25rem;
+  border-radius: var(--radius);
+  scroll-margin-top: 6rem;
+  transition: background 0.3s ease;
+}
+
+.clause p {
+  margin: 0;
+  line-height: 1.55;
+  color: var(--text);
+}
+
+/* The one somebody was sent to. A bar and a tint, not a colour of text: it has to be
+   found at a glance and then read without the marking getting in the way. */
+.clause.on {
+  background: var(--tile-on);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+.clause > .hinted {
+  align-self: start;
+}
+
+.paper-text a.clause-n {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.05rem 0.3rem;
+  font-size: 0.84rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--dim);
+  text-decoration: none;
+  border-radius: 4px;
+}
+
+/* The chain is there to be found by a hand, not to sit beside every number. */
+.clause-n svg {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.clause:hover .clause-n svg,
+.clause-n:focus-visible svg,
+.clause-n.done svg {
+  opacity: 1;
+}
+
+.paper-text a.clause-n:hover,
+.paper-text a.clause-n.done,
+.clause.on a.clause-n {
+  color: var(--accent);
+}
+
+/* The questions, a card each: the question as the card's heading, the answer under it. */
+.answers {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.answer {
+  padding: 0.85rem 1rem;
+  background: var(--panel);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  scroll-margin-top: 6rem;
+  transition: background 0.3s ease;
+}
+
+.answer h2 {
+  margin: 0 0 0.4rem;
+  font-size: 1rem;
+  font-weight: 650;
+  color: var(--text);
+}
+
+.answer p {
+  margin: 0;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+/* The one somebody was sent to, as with a clause. */
+.answer.on {
+  background: var(--tile-on);
+  border-color: var(--accent);
+}
+
+/* The address to write to, before it is set on the server: a blank, said as one. */
+.paper-missing {
+  color: var(--warn);
+}
+
+.paper-when {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--edge);
+  font-size: 0.8rem;
+  color: var(--dim);
+}
+
+/*
+ * Which text governs, under the date and quieter than the rules themselves.
+ *
+ * It follows the date, so the two facts about the page as a document stand together
+ * and neither is mistaken for a clause. Only shown where the page is a translation.
+ */
+.paper-governs {
+  margin-top: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--dim);
+}
+
+@media (hover: none) {
+  .clause-n svg {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 46rem) {
+  .clause {
+    grid-template-columns: 2.9rem minmax(0, 1fr);
+  }
+}
+
+/* --------------------------------------------------------------- the end */
+
+/* What the site is not, at the foot of every page and nowhere else. */
+.site-foot {
+  margin-top: 2.5rem;
+  padding: 1rem 1.25rem 1.5rem;
+  border-top: 1px solid var(--edge);
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: var(--dim);
+  text-align: center;
+}
+
+.site-foot p {
+  margin: 0;
+}
+
+/* Above the disclaimer rather than beside it: these are links somebody goes looking
+   for, and the disclaimer is a line nobody reads twice. */
+.foot-papers {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.25rem 1rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.8rem;
+}
+
+.foot-papers a {
+  color: var(--dim);
+}
+
+.foot-papers a:hover {
+  color: var(--accent);
+}
+
+/* How much of the site there is. A touch larger and brighter than the disclaimer under
+   it, because it is the one line in the foot worth looking at twice. */
+.site-foot .foot-counts {
+  margin-bottom: 0.6rem;
+  font-size: 0.8rem;
+  color: var(--text);
+}
+
+/* --------------------------------------------------------------------- talk */
+
+/*
+ * What people say under a model, in the side column of its window.
+ *
+ * A narrow column on purpose: the figure is what the window is for, and the talk is
+ * read beside it rather than instead of it. So everything here is one measure
+ * smaller than the same thing elsewhere on the site, and nothing in it is wider
+ * than the column — a name that is too long is cut, and a word nobody can break is
+ * broken rather than pushing the panel sideways.
+ */
+.talk {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+/* The count in the panel's own heading, which is uppercase and spaced out. */
+.talk-head {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: auto;
+  letter-spacing: 0;
+}
+
+.talk-write {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+/* Who is being answered, with the way out of answering them. */
+.talk-to {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--dim);
+}
+
+.talk-to .icon-only {
+  width: 18px;
+  height: 18px;
+  margin-left: auto;
+}
+
+.talk-go {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.talk-left {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.72rem;
+  color: var(--dim);
+}
+
+/* Not one of the square buttons in the row under the figure: this one has a word on it. */
+.talk-go .chip {
+  display: flex;
+  flex: none;
+  gap: 0.3rem;
+  padding: 0 0.6rem;
+  font-size: 0.8rem;
+}
+
+.talk-thread {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+/* Answers are set in, once. One step is enough to say what hangs from what, and a
+   second step in a column this wide would leave room for about four words. */
+.talk-replies {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding-left: 0.7rem;
+  border-left: 1px solid var(--edge);
+}
+
+.talk-line {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.talk-who {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.talk-who img {
+  border-radius: 50%;
+  flex: none;
+}
+
+.talk-none {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  flex: none;
+  border-radius: 50%;
+  color: var(--dim);
+  background: var(--tile);
+}
+
+.talk-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.8rem;
+}
+
+.talk-when {
+  flex: none;
+  margin-left: auto;
+  font-size: 0.7rem;
+  color: var(--dim);
+}
+
+/* As it was written, paragraphs and all; see the rule about comments on the way in. */
+.talk-said {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+/* The line that stands in place of words that were taken off. Quiet: it is a fact
+   about the conversation, not a mark against whoever wrote them. */
+.talk-line.gone .talk-said {
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--dim);
+}
+
+.talk-acts {
+  display: flex;
+  align-items: center;
+  gap: 0.1rem;
+}
+
+.talk-act {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  height: 22px;
+  padding: 0 0.3rem;
+  font-size: 0.72rem;
+  color: var(--dim);
+}
+
+.talk-act:hover:not(:disabled) {
+  color: var(--text);
+  background: var(--tile);
+}
+
+/* The words themselves, quoted in the window that asks what to do about them. */
+.ask-quote {
+  margin: 0 0 0.3rem;
+  padding: 0.4rem 0.55rem;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  color: var(--text);
+  background: var(--tile);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+}
+
+/* A reported comment in the queue, where the model's name is what stands first. */
+.queue-text {
+  font-size: 0.85rem;
+  line-height: 1.4;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+/* The reason and the one act it unlocks, on a line of their own under the reports. */
+.queue-act {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.1rem;
+}
+
+/* The clause first and narrow: it is a choice from a list, the reason beside it is a sentence. */
+.queue-rule {
+  flex: 0 0 15rem;
+  min-width: 0;
+}
+
+.queue-rule .drop-face {
+  padding: 0.3rem 0.5rem;
+  font-size: 0.8rem;
+}
+
+.queue-act input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.82rem;
+  background: var(--panel);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+}
+
+.queue-act .chip {
+  display: flex;
+  flex: none;
+  gap: 0.3rem;
+  padding: 0 0.6rem;
+  font-size: 0.8rem;
+}
+
+@media (max-width: 46rem) {
+  .queue-row {
+    flex-direction: column;
+  }
+
+  .queue-name {
+    width: auto;
+  }
+
+  .queue-act {
+    flex-wrap: wrap;
+  }
+}
+
+/* ------------------------------------------------------------------ API keys */
+
+/* The key itself, the one time it is shown: outlined, so it is not taken for a line of text. */
+.key-made {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem;
+  background: var(--panel);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+}
+
+.key-code {
+  flex: 1 1 18rem;
+  min-width: 0;
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 0.82rem;
+  color: var(--text);
+  word-break: break-all;
+  user-select: all;
+}
+
+.key-made p {
+  flex-basis: 100%;
+}
+
+.key-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.key-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.3rem 0.3rem 0.3rem 0.6rem;
+  font-size: 0.85rem;
+  background: var(--panel);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+}
+
+.key-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text);
+}
+
+.key-hint {
+  font-family: ui-monospace, Consolas, monospace;
+  color: var(--dim);
+}
+
+.key-when {
+  font-size: 0.78rem;
+  color: var(--dim);
+}
+
+.key-new {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.key-new input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.4rem 0.5rem;
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--text);
+  background: var(--panel);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+}
+
+/* Presses of their own, as wide as their words, like the ones under the policy note. */
+.key-made .chip,
+.key-row .chip,
+.key-new .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: none;
+  padding: 0 0.7rem;
+}
+
+@media (max-width: 30rem) {
+  .key-row {
+    flex-wrap: wrap;
+  }
+  .key-name {
+    flex-basis: 100%;
+  }
+}
+
+/* ------------------------------------------------- letting Blockbench in */
+
+/*
+ * The page a plugin opens, asking to be let into an account.
+ *
+ * Laid out on the empty-page layout rather than in a window of its own: there is
+ * nothing else on the screen, and that is the point. Narrow, because every line on
+ * it is meant to be read before a press.
+ */
+.link-ask {
+  max-width: 30rem;
+  margin: 0 auto;
+}
+
+/*
+ * The code, as large as it can be read across a room.
+ *
+ * It exists to be compared with the one in Blockbench, and a comparison is only made
+ * if both are easy to see at once. Monospace and spaced out, so that similar
+ * characters stand apart; selectable whole, since somebody may want to type it in.
+ */
+.link-code {
+  margin: 0.4rem 0 0;
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 1.8rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  color: var(--text);
+  user-select: all;
+}
+
+.link-facts {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.2rem 0.8rem;
+  margin: 0.4rem 0 0;
+  text-align: left;
+}
+
+.link-facts dt {
+  color: var(--dim);
+}
+
+.link-facts dd {
+  margin: 0;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.link-head {
+  margin: 0.6rem 0 0;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.link-can,
+.link-cannot {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+}
+
+.link-can li,
+.link-cannot li {
+  padding-left: 1rem;
+  position: relative;
+}
+
+/*
+ * Which half of the two lists a line belongs to, said by a mark rather than by
+ * colour alone: the two lists say opposite things, and a person who does not see
+ * the difference between grey and blue must still see which is which.
+ */
+.link-can li::before {
+  content: '+';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+}
+
+.link-cannot li::before {
+  content: '\2212';
+  position: absolute;
+  left: 0;
+  color: var(--dim);
+}
+
+/* ----------------------------------------------------------------- feedback */
+
+/*
+ * The wall of reviews, in the column the rules and the contacts use.
+ *
+ * A review is drawn with the classes a comment under a model already has, so that a
+ * change to one is a change to both. What is here is only what the wall has and that
+ * panel does not: the narrowing at the top, the box holding your own review, and the
+ * badge saying which of the two things a review is about.
+ */
+.wall {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.wall-lead {
+  margin: 0;
+  color: var(--dim);
+}
+
+.wall-pick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+/* A chip elsewhere is one of a row of equal buttons; these are words with a number
+   beside them, so each takes the width of its own. */
+.wall-pick .chip,
+.wall-of .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: none;
+  padding: 0 0.75rem;
+}
+
+.wall-n {
+  font-size: 0.75rem;
+  color: var(--dim);
+}
+
+/* On the one chosen the number keeps the chip's own colour: two colours inside one
+   button read as two things, and it is one. */
+.wall-pick .chip.on .wall-n {
+  color: inherit;
+}
+
+/* Your own review, in a box: on a column this wide a bare field reads as a search. */
+.wall-write {
+  padding: 0.7rem;
+  background: var(--tile);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+}
+
+.wall-of {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.wall-of-head {
+  margin-right: 0.2rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* An answer is written where it was asked for, under the thread it answers. */
+.wall-answer {
+  padding: 0.5rem 0.7rem;
+  margin-left: 0.7rem;
+  background: var(--tile);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+}
+
+/* Further apart than comments in a panel: these are separate opinions, not a
+   conversation, and a wall of them needs the space to be read as separate. */
+.wall-list {
+  gap: 1.1rem;
+}
+
+.wall-is {
+  flex: none;
+  padding: 0 0.4rem;
+  font-size: 0.68rem;
+  line-height: 18px;
+  color: var(--dim);
+  background: var(--tile);
+  border: 1px solid var(--edge);
+  border-radius: 999px;
+}
+
+/* That a review was rewritten, said quietly and always: a changed review with
+   nothing saying so is the one thing worse than no reviews. */
+.wall-edited {
+  margin: 0;
+  font-size: 0.7rem;
+  color: var(--dim);
+}
+
+/* The way in, for somebody who has not signed in and so cannot write. */
+.wall-out {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}

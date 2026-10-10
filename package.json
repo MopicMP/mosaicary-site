@@ -1,0 +1,47 @@
+{
+  "name": "models-site",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "A catalogue of Blockbench models: uploaded, looked at in 3D and downloaded.",
+  "engines": {
+    "node": ">=20.12"
+  },
+  "scripts": {
+    "dev": "concurrently -k -n web,api -c cyan,magenta \"vite\" \"wrangler dev --local --port 8787 --env-file ../.env --var PUBLIC_ORIGIN:http://localhost:5173\"",
+    "dev:skins": "concurrently -k -n web,api -c cyan,magenta \"vite --mode skins\" \"tsx watch --env-file-if-exists=../.env --env-file-if-exists=.env server/index.ts\"",
+    "db:local": "wrangler d1 migrations apply models-site --local",
+    "build": "npm run check && vite build && node -e \"require('fs').copyFileSync('dist/web/index.html','dist/web/404.html')\"",
+    "test": "vitest run",
+    "check": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.worker.json"
+  },
+  "dependencies": {
+    "@electric-sql/pglite": "^0.5.5",
+    "@fastify/cookie": "^11.1.2",
+    "@fastify/static": "^8.0.4",
+    "fastify": "^5.2.1",
+    "lucide-react": "^1.31.0",
+    "molangjs": "^1.7.1",
+    "pg": "^8.23.0",
+    "pngjs": "^7.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "three": "^0.186.1"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261006.1",
+    "@types/node": "^22.10.5",
+    "@types/pg": "^8.21.0",
+    "@types/pngjs": "^6.0.5",
+    "@types/react": "^19.0.7",
+    "@types/react-dom": "^19.0.3",
+    "@types/three": "^0.186.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^9.1.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "vite": "^6.0.7",
+    "vitest": "^2.1.8",
+    "wrangler": "^4.147.0"
+  }
+}

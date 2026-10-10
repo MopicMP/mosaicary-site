@@ -1,0 +1,47 @@
+// The Worker that answers /api/* for the models site.
+//
+// Nothing in here is secret. The secrets (SESSION_SECRET, the Discord and GitHub
+// pairs, ADMINS) are set with `wrangler secret put` for production and come from
+// ../.env through --env-file while working locally; PUBLIC_ORIGIN is passed with
+// --var locally and set beside the secrets for production.
+//
+// The database and the bucket do not exist on the account yet. `database_id` stays
+// a placeholder until `wrangler d1 create` gives a real one; local work does not
+// need it, since `wrangler dev --local` keeps both in .wrangler/state.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "models-site-api",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-10-01",
+  "observability": { "enabled": true },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "models-site",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "FILES",
+      "bucket_name": "models-site-files"
+    }
+  ],
+  // How often an API key may ask, per account and per minute, apart for reading and
+  // for changing something (worker/index.ts, withKey). Counted by Cloudflare at each of
+  // its locations, nothing written to the database. The ids are ours to choose.
+  //
+  // Signing in by code is counted by address instead, because it happens before there
+  // is an account: starting writes a row, so it is held to ten a minute, while asking
+  // how it went happens every three seconds for ten minutes and needs room for that.
+  "ratelimits": [
+    { "name": "KEY_READS", "namespace_id": "1001", "simple": { "limit": 300, "period": 60 } },
+    { "name": "KEY_WRITES", "namespace_id": "1002", "simple": { "limit": 30, "period": 60 } },
+    { "name": "LINK_STARTS", "namespace_id": "1003", "simple": { "limit": 10, "period": 60 } },
+    { "name": "LINK_POLLS", "namespace_id": "1004", "simple": { "limit": 60, "period": 60 } }
+  ]
+  // "routes": [{ "pattern": "<domain>/api/*", "zone_name": "<domain>" }]
+  // Added once the domain is bought: the Worker sits on the site's own address,
+  // so the pages and the API are one origin.
+}
